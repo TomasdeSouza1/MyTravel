@@ -63,3 +63,6 @@ GEMINI.md
 Trip_Expense_Planner_Blueprint_V10.pdf
 install-prerequisites.bat
 
+# --- Graphify (Mapeo de conocimiento y arquitectura) ---
+graphify-out/
+

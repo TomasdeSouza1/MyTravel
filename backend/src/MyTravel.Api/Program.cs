@@ -1,12 +1,15 @@
-using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using MyTravel.Application.Interfaces;
-using MyTravel.Domain.Entities;
-using MyTravel.Infrastructure.Persistence;
-using MyTravel.Infrastructure.Services;
+using System.Text;                                                                                               
+    using System.Threading.RateLimiting;                                                                             
+    using Microsoft.AspNetCore.Authentication.JwtBearer;                                                             
+    using Microsoft.AspNetCore.Identity;                                                                             
+    using Microsoft.AspNetCore.RateLimiting;                                                                         
+    using Microsoft.EntityFrameworkCore;                                                                             
+    using Microsoft.IdentityModel.Tokens;                                                                            
+    using MyTravel.Api.Middlewares;                                                                                  
+    using MyTravel.Application.Interfaces;                                                                           
+    using MyTravel.Domain.Entities;                                                                                  
+    using MyTravel.Infrastructure.Persistence;                                                                       
+    using MyTravel.Infrastructure.Services; 
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +18,29 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-                                               
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<ApplicationDbContext>(name: "database");
+//Manejo de excepciones 
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
+//RateLimiting
+builder.Services.AddRateLimiter(rateLimiterOptions =>                                                            
+    {                                                                                                                
+        rateLimiterOptions.RejectionStatusCode = StatusCodes.Status429TooManyRequests;                               
+        rateLimiterOptions.AddPolicy("fixed-by-ip", httpContext =>                                                   
+        {                                                                                                            
+            var clientIp = httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";                          
+            return RateLimitPartition.GetFixedWindowLimiter(clientIp, _ => new FixedWindowRateLimiterOptions         
+            {                                                                                                        
+                PermitLimit = 100,                                                                                   
+                Window = TimeSpan.FromMinutes(1),                                                                    
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,                                             
+                QueueLimit = 0                                                                                       
+            });                                                                                                      
+        });                                                                                                          
+    }); 
+ //Identity                                            
 builder.Services.AddIdentityCore<User>(options =>
 {
     options.Password.RequireDigit = true;
@@ -25,7 +50,7 @@ builder.Services.AddIdentityCore<User>(options =>
 })
 .AddRoles<IdentityRole<Guid>>()
 .AddEntityFrameworkStores<ApplicationDbContext>();
-
+//JWT
 var jwtKey = builder.Configuration["Jwt:Key"]
     ?? throw new InvalidOperationException("Jwt:Key no esta configurado");
 
@@ -48,7 +73,7 @@ builder.Services.AddAuthentication(options =>
         ClockSkew = TimeSpan.Zero
     };
 });
-
+//inyeccion de dependecias.
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
@@ -57,6 +82,8 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
+app.UseExceptionHandler();
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -64,9 +91,14 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Importante: Authentication antes de Authorization                                                   
+app.UseRateLimiter();
+
+//Authentication antes de Authorization                                                   
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapControllers();
+//Endpoint de saluid del sistema 
+app.MapHealthChecks("/health");                                
+app.MapControllers().RequireRateLimiting("fixed-by-ip");
+
 
 app.Run();                                                                                             
