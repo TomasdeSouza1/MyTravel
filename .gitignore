@@ -1,8 +1,7 @@
-# ==========================================
-# MyTravel .gitignore (Consolidado y Limpio)
-# ==========================================
 
-# --- .NET Build & Artefactos ---
+# MyTravel .gitignore 
+
+#  .NET Build & Artefactos 
 [Bb]in/
 [Oo]bj/
 **/[Bb]in/
@@ -20,7 +19,7 @@
 .vscode/
 .idea/
 
-# --- Node & Frontend (React/Vite) ---
+#  Node & Frontend (React/Vite) 
 node_modules/
 **/node_modules/
 dist/
@@ -38,31 +37,31 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# --- Entornos y Secretos ---
+#  Entornos y Secretos 
 .env
 .env.*.local
 *.secrets.json
 
-# --- Docker & Base de datos local ---
+#  Docker & Base de datos local 
 .pgdata/
 docker-compose.override.yml
 
-# --- Archivos del Sistema Operativo ---
+#  Archivos del Sistema Operativo 
 Thumbs.db
 [Dd]esktop.ini
 .DS_Store
 
-# --- Herramientas de IA y agentes locales ---
+#  Herramientas y agentes locales
 .agents/
 .gemini/
 
-# --- Documentacion interna y blueprints locales ---
+# Documentacion interna y blueprints locales 
 [Gg]emini.md
 GEMINI.md
 *.pdf
 Trip_Expense_Planner_Blueprint_V10.pdf
 install-prerequisites.bat
 
-# --- Graphify (Mapeo de conocimiento y arquitectura) ---
+#  Graphify 
 graphify-out/
 
