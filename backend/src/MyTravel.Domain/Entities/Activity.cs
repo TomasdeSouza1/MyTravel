@@ -14,5 +14,6 @@ public class Activity : BaseEntity
    public TimeOnly EndTime { get; set; }
    public int OrderIndex { get; set; }
    public string? BookingReference { get; set; }
+   public string? Notes { get; set; }
 
 }
