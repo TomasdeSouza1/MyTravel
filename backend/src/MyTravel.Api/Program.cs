@@ -1,15 +1,16 @@
 using System.Text;                                                                                               
-    using System.Threading.RateLimiting;                                                                             
-    using Microsoft.AspNetCore.Authentication.JwtBearer;                                                             
-    using Microsoft.AspNetCore.Identity;                                                                             
-    using Microsoft.AspNetCore.RateLimiting;                                                                         
-    using Microsoft.EntityFrameworkCore;                                                                             
-    using Microsoft.IdentityModel.Tokens;                                                                            
-    using MyTravel.Api.Middlewares;                                                                                  
-    using MyTravel.Application.Interfaces;                                                                           
-    using MyTravel.Domain.Entities;                                                                                  
-    using MyTravel.Infrastructure.Persistence;                                                                       
-    using MyTravel.Infrastructure.Services; 
+using System.Threading.RateLimiting;                                                                             
+using Microsoft.AspNetCore.Authentication.JwtBearer;                                                             
+using Microsoft.AspNetCore.Identity;                                                                             
+using Microsoft.AspNetCore.RateLimiting;                                                                         
+using Microsoft.EntityFrameworkCore;                                                                             
+using Microsoft.IdentityModel.Tokens;                                                                            
+using MyTravel.Api.Middlewares;                                                                                  
+using MyTravel.Application.Interfaces;                                                                           
+using MyTravel.Domain.Entities;                                                                                  
+using MyTravel.Infrastructure.Persistence;                                                                       
+using MyTravel.Infrastructure.Services; 
+using MyTravel.Application.DI;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -76,9 +77,9 @@ builder.Services.AddAuthentication(options =>
 //inyeccion de dependecias.
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddApplication();
 
 builder.Services.AddControllers();
-builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
