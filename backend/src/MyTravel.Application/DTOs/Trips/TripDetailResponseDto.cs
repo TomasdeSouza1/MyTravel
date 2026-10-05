@@ -17,9 +17,11 @@ public class TripDetailResponseDto
     public DateOnly EndDate { get; set; }                                                                        
     public decimal TotalBudget { get; set; }                                                                     
     public string InviteToken { get; set; } = "";                                                                
+    public bool IsPublic { get; set; }
+    public bool CanEdit { get; set; }
     public DateTime CreatedAt { get; set; } 
 
-    public List<ItineraryDayResponseDto> Days{get;set;}=[];
+    public List<ItineraryDayResponseDto> Days { get; set; } = [];
 
 
 }

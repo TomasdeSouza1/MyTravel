@@ -12,5 +12,6 @@ public class CreateTripDto
     public string BaseCurrency { get; set; } = "USD";                                                            
     public DateOnly StartDate { get; set; }                                                                      
     public DateOnly EndDate { get; set; }                                                                        
-    public decimal TotalBudget { get; set; }                                                  
+    public decimal TotalBudget { get; set; }
+    public bool IsPublic { get; set; } = false;                                                  
 }

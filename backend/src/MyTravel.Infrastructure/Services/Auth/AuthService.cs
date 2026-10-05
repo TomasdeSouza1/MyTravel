@@ -8,11 +8,16 @@ namespace MyTravel.Infrastructure.Services;
 public class AuthService : IAuthService
 {
     private readonly UserManager<User> uManager;
+    private readonly RoleManager<IdentityRole<Guid>> _roleManager;
     private readonly IJwtTokenService TService;
 
-    public AuthService(UserManager<User> userManager, IJwtTokenService TokenService)
+    public AuthService(
+        UserManager<User> userManager,
+        RoleManager<IdentityRole<Guid>> roleManager,
+        IJwtTokenService TokenService)
     {
         uManager = userManager;
+        _roleManager = roleManager;
         TService = TokenService;
     }
 
@@ -36,6 +41,15 @@ public class AuthService : IAuthService
         {
             return(false, null, result1.Errors.Select(e => e.Description ));
         }
+
+        // Asignar rol "User" por defecto
+        const string defaultRole = "User";
+        if (!await _roleManager.RoleExistsAsync(defaultRole))
+        {
+            await _roleManager.CreateAsync(new IdentityRole<Guid>(defaultRole));
+        }
+        await uManager.AddToRoleAsync(user, defaultRole);
+
         var roles = await uManager.GetRolesAsync(user);
         var token = TService.GenerateToken(user,roles);
 
@@ -57,8 +71,8 @@ public class AuthService : IAuthService
             return (false, null, "Credenciales Invalidas");
         }
     
-        var isPassawordValid = await uManager.CheckPasswordAsync(user , dto.Password);
-        if (!isPassawordValid)
+        var isPasswordValid = await uManager.CheckPasswordAsync(user , dto.Password);
+        if (!isPasswordValid)
         {
             return (false,null, "Credenciales Invalidas.");
         }

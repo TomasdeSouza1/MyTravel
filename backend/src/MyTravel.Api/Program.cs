@@ -11,6 +11,11 @@ using MyTravel.Domain.Entities;
 using MyTravel.Infrastructure.Persistence;                                                                       
 using MyTravel.Infrastructure.Services; 
 using MyTravel.Application.DI;
+using MyTravel.Api.Filters;
+using Scalar.AspNetCore;
+using MyTravel.Infrastructure.Services.Trips;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -74,12 +79,17 @@ builder.Services.AddAuthentication(options =>
         ClockSkew = TimeSpan.Zero
     };
 });
+
 //inyeccion de dependecias.
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ITripService, TripService>();
 builder.Services.AddApplication();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<ValidationFilter>();
+});
 
 var app = builder.Build();
 
@@ -88,6 +98,7 @@ app.UseExceptionHandler();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference();
 }
 
 app.UseHttpsRedirection();
