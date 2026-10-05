@@ -13,4 +13,5 @@ public class UpdateTripDto
     public DateOnly StartDate { get; set; }                                                                      
     public DateOnly EndDate { get; set; }                                                                        
     public decimal TotalBudget { get; set; }  
+    public bool IsPublic { get; set; } = false;
 }

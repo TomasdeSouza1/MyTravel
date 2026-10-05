@@ -20,6 +20,7 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<Guid>, 
     public DbSet<Activity> Activities => Set<Activity>();
     public DbSet<Expense> Expenses => Set<Expense>();
     public DbSet<TripMember> TripMembers => Set<TripMember>();
+    public DbSet<Flight> Flights => Set<Flight>();
 
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -40,6 +41,7 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<Guid>, 
         builder.Entity<ItineraryDay>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<Activity>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<Expense>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<Flight>().HasQueryFilter(e => !e.IsDeleted);
 
         builder.Entity<Trip>()
                 .Property(t => t.TotalBudget)

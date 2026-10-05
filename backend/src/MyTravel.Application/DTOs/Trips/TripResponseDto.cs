@@ -16,5 +16,6 @@ public class TripResponseDto
     public DateOnly EndDate { get; set; }                                                                        
     public decimal TotalBudget { get; set; }                                                                     
     public string InviteToken { get; set; } = "";                                                                
+    public bool IsPublic { get; set; }
     public DateTime CreatedAt { get; set; }   
 }

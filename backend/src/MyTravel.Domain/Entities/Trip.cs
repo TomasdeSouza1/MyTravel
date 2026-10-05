@@ -13,8 +13,10 @@ public class Trip : BaseEntity
     public DateOnly EndDate { get; set; } 
     public decimal TotalBudget { get; set; }
     public string InviteToken { get; set; } = Guid.NewGuid().ToString("N");
+    public bool IsPublic { get; set; } = false;
 
     public List<ItineraryDay> Days { get; set; } = [];
     public List<Expense> Expenses { get; set; } = [];
     public List<TripMember> Members { get; set; } = [];
+    public List<Flight> Flights { get; set; } = [];
 }
