@@ -62,6 +62,18 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<Guid>, 
         builder.Entity<ItineraryDay>()
             .Property(d => d.TemperatureC)
             .HasPrecision(5, 2);
+
+        builder.Entity<Flight>(b =>
+        {
+            b.Property(f => f.Airline).HasMaxLength(100).IsRequired();
+            b.Property(f => f.FlightNumber).HasMaxLength(20).IsRequired();
+            b.Property(f => f.DepartureAirport).HasMaxLength(10).IsRequired();
+            b.Property(f => f.ArrivalAirport).HasMaxLength(10).IsRequired();
+            b.Property(f => f.BookingReference).HasMaxLength(50);
+            b.Property(f => f.Terminal).HasMaxLength(20);
+            b.Property(f => f.Gate).HasMaxLength(20);
+            b.Property(f => f.Notes).HasMaxLength(1000);
+        });
     }
 
 
