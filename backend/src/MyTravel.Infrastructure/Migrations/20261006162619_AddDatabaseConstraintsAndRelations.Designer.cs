@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MyTravel.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20261005214649_AddFlightsAndPublicTrip")]
-    partial class AddFlightsAndPublicTrip
+    [Migration("20261006162619_AddDatabaseConstraintsAndRelations")]
+    partial class AddDatabaseConstraintsAndRelations
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -162,10 +162,12 @@ namespace MyTravel.Infrastructure.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("Address")
-                        .HasColumnType("text");
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
 
                     b.Property<string>("BookingReference")
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<int>("Category")
                         .HasColumnType("integer");
@@ -190,10 +192,12 @@ namespace MyTravel.Infrastructure.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
 
                     b.Property<string>("Notes")
-                        .HasColumnType("text");
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<int>("OrderIndex")
                         .HasColumnType("integer");
@@ -203,9 +207,18 @@ namespace MyTravel.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ItineraryDayId");
+                    b.HasIndex("ItineraryDayId", "OrderIndex");
 
-                    b.ToTable("Activities");
+                    b.ToTable("Activities", t =>
+                        {
+                            t.HasCheckConstraint("CK_Activities_Latitude", "\"Latitude\" >= -90.0 AND \"Latitude\" <= 90.0");
+
+                            t.HasCheckConstraint("CK_Activities_Longitude", "\"Longitude\" >= -180.0 AND \"Longitude\" <= 180.0");
+
+                            t.HasCheckConstraint("CK_Activities_OrderIndex", "\"OrderIndex\" >= 0");
+
+                            t.HasCheckConstraint("CK_Activities_Times", "\"EndTime\" >= \"StartTime\"");
+                        });
                 });
 
             modelBuilder.Entity("MyTravel.Domain.Entities.Expense", b =>
@@ -243,16 +256,26 @@ namespace MyTravel.Infrastructure.Migrations
 
                     b.Property<string>("OriginalCurrency")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)");
 
                     b.Property<Guid>("TripId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ActivityId");
+
                     b.HasIndex("TripId");
 
-                    b.ToTable("Expenses");
+                    b.ToTable("Expenses", t =>
+                        {
+                            t.HasCheckConstraint("CK_Expenses_ConvertedAmount", "\"ConvertedAmount\" >= 0");
+
+                            t.HasCheckConstraint("CK_Expenses_ExchangeRateUsed", "\"ExchangeRateUsed\" > 0");
+
+                            t.HasCheckConstraint("CK_Expenses_OriginalAmount", "\"OriginalAmount\" >= 0");
+                        });
                 });
 
             modelBuilder.Entity("MyTravel.Domain.Entities.Flight", b =>
@@ -263,43 +286,51 @@ namespace MyTravel.Infrastructure.Migrations
 
                     b.Property<string>("Airline")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("ArrivalAirport")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
 
                     b.Property<DateTime>("ArrivalTime")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("BookingReference")
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("DepartureAirport")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
 
                     b.Property<DateTime>("DepartureTime")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("FlightNumber")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
 
                     b.Property<string>("Gate")
-                        .HasColumnType("text");
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
                     b.Property<string>("Notes")
-                        .HasColumnType("text");
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<string>("Terminal")
-                        .HasColumnType("text");
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
 
                     b.Property<Guid>("TripId")
                         .HasColumnType("uuid");
@@ -331,14 +362,17 @@ namespace MyTravel.Infrastructure.Migrations
 
                     b.Property<string>("LocationCity")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("LocationCountry")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("Notes")
-                        .HasColumnType("text");
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
 
                     b.Property<decimal?>("TemperatureC")
                         .HasPrecision(5, 2)
@@ -348,13 +382,19 @@ namespace MyTravel.Infrastructure.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("WeatherSumm")
-                        .HasColumnType("text");
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TripId");
+                    b.HasIndex("TripId", "DayNumber");
 
-                    b.ToTable("ItineraryDays");
+                    b.ToTable("ItineraryDays", t =>
+                        {
+                            t.HasCheckConstraint("CK_ItineraryDays_DayNumber", "\"DayNumber\" > 0");
+
+                            t.HasCheckConstraint("CK_ItineraryDays_TemperatureC", "\"TemperatureC\" IS NULL OR (\"TemperatureC\" >= -60 AND \"TemperatureC\" <= 60)");
+                        });
                 });
 
             modelBuilder.Entity("MyTravel.Domain.Entities.Trip", b =>
@@ -365,31 +405,37 @@ namespace MyTravel.Infrastructure.Migrations
 
                     b.Property<string>("BaseCurrency")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)");
 
                     b.Property<string>("CoverImageUrl")
-                        .HasColumnType("text");
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
-                        .HasColumnType("text");
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<string>("DestinationCity")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("DestinationCountry")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<DateOnly>("EndDate")
                         .HasColumnType("date");
 
                     b.Property<string>("InviteToken")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -402,7 +448,8 @@ namespace MyTravel.Infrastructure.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
 
                     b.Property<decimal>("TotalBudget")
                         .HasPrecision(18, 2)
@@ -413,7 +460,17 @@ namespace MyTravel.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Trips");
+                    b.HasIndex("InviteToken")
+                        .IsUnique();
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Trips", t =>
+                        {
+                            t.HasCheckConstraint("CK_Trips_Dates", "\"EndDate\" >= \"StartDate\"");
+
+                            t.HasCheckConstraint("CK_Trips_TotalBudget", "\"TotalBudget\" >= 0");
+                        });
                 });
 
             modelBuilder.Entity("MyTravel.Domain.Entities.TripMember", b =>
@@ -459,7 +516,8 @@ namespace MyTravel.Infrastructure.Migrations
 
                     b.Property<string>("FullName")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("boolean");
@@ -568,6 +626,11 @@ namespace MyTravel.Infrastructure.Migrations
 
             modelBuilder.Entity("MyTravel.Domain.Entities.Expense", b =>
                 {
+                    b.HasOne("MyTravel.Domain.Entities.Activity", null)
+                        .WithMany()
+                        .HasForeignKey("ActivityId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("MyTravel.Domain.Entities.Trip", null)
                         .WithMany("Expenses")
                         .HasForeignKey("TripId")
@@ -590,6 +653,15 @@ namespace MyTravel.Infrastructure.Migrations
                         .WithMany("Days")
                         .HasForeignKey("TripId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("MyTravel.Domain.Entities.Trip", b =>
+                {
+                    b.HasOne("MyTravel.Domain.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 

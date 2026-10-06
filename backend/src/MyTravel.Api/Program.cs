@@ -6,7 +6,10 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;                                                                             
 using Microsoft.IdentityModel.Tokens;                                                                            
 using MyTravel.Api.Middlewares;                                                                                  
-using MyTravel.Application.Interfaces;                                                                           
+using MyTravel.Application.Interfaces.Auth;
+using MyTravel.Application.Interfaces.Trip;
+using MyTravel.Application.Interfaces.Itinerary;
+using MyTravel.Application.Interfaces.Activity;                                                                           
 using MyTravel.Domain.Entities;                                                                                  
 using MyTravel.Infrastructure.Persistence;                                                                       
 using MyTravel.Infrastructure.Services; 
@@ -14,6 +17,8 @@ using MyTravel.Application.DI;
 using MyTravel.Api.Filters;
 using Scalar.AspNetCore;
 using MyTravel.Infrastructure.Services.Trips;
+using MyTravel.Infrastructure.Services.Itineraries;
+using MyTravel.Infrastructure.Services.Activities;
 
 
 
@@ -84,6 +89,8 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITripService, TripService>();
+builder.Services.AddScoped<IItineraryDayService, ItineraryDayService>();
+builder.Services.AddScoped<IActivityService, ActivityService>();
 builder.Services.AddApplication();
 
 builder.Services.AddControllers(options =>

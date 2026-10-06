@@ -3,7 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using MyTravel.Application.Interfaces;
+using MyTravel.Application.Interfaces.Auth;
 using MyTravel.Domain.Entities;
 
 namespace MyTravel.Infrastructure.Services

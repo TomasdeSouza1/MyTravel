@@ -1,7 +1,7 @@
 using System;
 using MyTravel.Application.DTOs.Trips;
 
-namespace MyTravel.Application.Interfaces;
+namespace MyTravel.Application.Interfaces.Trip;
 
 public interface ITripService
 {

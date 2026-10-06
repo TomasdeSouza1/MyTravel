@@ -1,6 +1,6 @@
 using MyTravel.Domain.Entities;
 
-namespace MyTravel.Application.Interfaces;
+namespace MyTravel.Application.Interfaces.Auth;
 
 public interface IJwtTokenService
 {
