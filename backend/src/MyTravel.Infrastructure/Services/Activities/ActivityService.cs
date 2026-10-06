@@ -11,15 +11,15 @@ public class ActivityService(ApplicationDbContext context) : IActivityService
 {
     public async Task<ActivityResponseDto?> AddActivityAsync(Guid dayId, Guid userId, CreateActivityDto dto)
     {
-        var day = await context.ItineraryDays.FirstOrDefaultAsync(d => d.Id == dayId);
-        if (day == null) return null;
+        // Consulta unificada en 1 solo viaje a la BD gracias a las propiedades de navegación
+        var day = await context.ItineraryDays
+            .Include(d => d.Trip)
+                .ThenInclude(t => t!.Members)
+            .FirstOrDefaultAsync(d => d.Id == dayId);
 
-        var trip = await context.Trips
-            .Include(t => t.Members)
-            .FirstOrDefaultAsync(t => t.Id == day.TripId);
+        if (day?.Trip == null) return null;
 
-        if (trip == null) return null;
-
+        var trip = day.Trip;
         var canEdit = trip.UserId == userId || trip.Members.Any(m => m.UserId == userId && (m.Role == MemberRole.Owner || m.Role == MemberRole.Editor));
         if (!canEdit) return null;
 
@@ -56,18 +56,16 @@ public class ActivityService(ApplicationDbContext context) : IActivityService
 
     public async Task<ActivityResponseDto?> UpdateActivityAsync(Guid activityId, Guid userId, UpdateActivityDto dto)
     {
-        var activity = await context.Activities.FirstOrDefaultAsync(a => a.Id == activityId);
-        if (activity == null) return null;
+       
+        var activity = await context.Activities
+            .Include(a => a.ItineraryDay)
+                .ThenInclude(d => d!.Trip)
+                    .ThenInclude(t => t!.Members)
+            .FirstOrDefaultAsync(a => a.Id == activityId);
 
-        var day = await context.ItineraryDays.FirstOrDefaultAsync(d => d.Id == activity.ItineraryDayId);
-        if (day == null) return null;
+        if (activity?.ItineraryDay?.Trip == null) return null;
 
-        var trip = await context.Trips
-            .Include(t => t.Members)
-            .FirstOrDefaultAsync(t => t.Id == day.TripId);
-
-        if (trip == null) return null;
-
+        var trip = activity.ItineraryDay.Trip;
         var canEdit = trip.UserId == userId || trip.Members.Any(m => m.UserId == userId && (m.Role == MemberRole.Owner || m.Role == MemberRole.Editor));
         if (!canEdit) return null;
 
@@ -88,18 +86,16 @@ public class ActivityService(ApplicationDbContext context) : IActivityService
 
     public async Task<bool> DeleteActivityAsync(Guid activityId, Guid userId)
     {
-        var activity = await context.Activities.FirstOrDefaultAsync(a => a.Id == activityId);
-        if (activity == null) return false;
+        
+        var activity = await context.Activities
+            .Include(a => a.ItineraryDay)
+                .ThenInclude(d => d!.Trip)
+                    .ThenInclude(t => t!.Members)
+            .FirstOrDefaultAsync(a => a.Id == activityId);
 
-        var day = await context.ItineraryDays.FirstOrDefaultAsync(d => d.Id == activity.ItineraryDayId);
-        if (day == null) return false;
+        if (activity?.ItineraryDay?.Trip == null) return false;
 
-        var trip = await context.Trips
-            .Include(t => t.Members)
-            .FirstOrDefaultAsync(t => t.Id == day.TripId);
-
-        if (trip == null) return false;
-
+        var trip = activity.ItineraryDay.Trip;
         var canEdit = trip.UserId == userId || trip.Members.Any(m => m.UserId == userId && (m.Role == MemberRole.Owner || m.Role == MemberRole.Editor));
         if (!canEdit) return false;
 
@@ -111,15 +107,15 @@ public class ActivityService(ApplicationDbContext context) : IActivityService
 
     public async Task<bool> ReorderActivitiesAsync(Guid dayId, Guid userId, ReorderActivitiesDto dto)
     {
-        var day = await context.ItineraryDays.FirstOrDefaultAsync(d => d.Id == dayId);
-        if (day == null) return false;
+       
+        var day = await context.ItineraryDays
+            .Include(d => d.Trip)
+                .ThenInclude(t => t!.Members)
+            .FirstOrDefaultAsync(d => d.Id == dayId);
 
-        var trip = await context.Trips
-            .Include(t => t.Members)
-            .FirstOrDefaultAsync(t => t.Id == day.TripId);
+        if (day?.Trip == null) return false;
 
-        if (trip == null) return false;
-
+        var trip = day.Trip;
         var canEdit = trip.UserId == userId || trip.Members.Any(m => m.UserId == userId && (m.Role == MemberRole.Owner || m.Role == MemberRole.Editor));
         if (!canEdit) return false;
 

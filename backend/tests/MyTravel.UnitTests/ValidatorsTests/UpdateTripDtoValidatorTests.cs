@@ -37,8 +37,7 @@ public class UpdateTripDtoValidatorTests
     [InlineData("ab")]
     public void Validate_InvalidTitle_ShouldHaveValidationError(string title)
     {
-        var dto = CreateValidDto();
-        dto.Title = title;
+        var dto = CreateValidDto() with { Title = title };
 
         var result = _validator.Validate(dto);
 
@@ -49,8 +48,7 @@ public class UpdateTripDtoValidatorTests
     [Fact]
     public void Validate_TitleExceeds120Chars_ShouldHaveValidationError()
     {
-        var dto = CreateValidDto();
-        dto.Title = new string('A', 121);
+        var dto = CreateValidDto() with { Title = new string('A', 121) };
 
         var result = _validator.Validate(dto);
 
@@ -64,8 +62,7 @@ public class UpdateTripDtoValidatorTests
     [InlineData("EURO")]
     public void Validate_InvalidCurrency_ShouldHaveValidationError(string currency)
     {
-        var dto = CreateValidDto();
-        dto.BaseCurrency = currency;
+        var dto = CreateValidDto() with { BaseCurrency = currency };
 
         var result = _validator.Validate(dto);
 
@@ -76,8 +73,7 @@ public class UpdateTripDtoValidatorTests
     [Fact]
     public void Validate_NegativeBudget_ShouldHaveValidationError()
     {
-        var dto = CreateValidDto();
-        dto.TotalBudget = -1;
+        var dto = CreateValidDto() with { TotalBudget = -1 };
 
         var result = _validator.Validate(dto);
 
@@ -88,9 +84,11 @@ public class UpdateTripDtoValidatorTests
     [Fact]
     public void Validate_EndDateBeforeStartDate_ShouldHaveValidationError()
     {
-        var dto = CreateValidDto();
-        dto.StartDate = new DateOnly(2026, 12, 10);
-        dto.EndDate = new DateOnly(2026, 12, 1);
+        var dto = CreateValidDto() with
+        {
+            StartDate = new DateOnly(2026, 12, 10),
+            EndDate = new DateOnly(2026, 12, 1)
+        };
 
         var result = _validator.Validate(dto);
 

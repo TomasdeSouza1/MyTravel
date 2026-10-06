@@ -9,7 +9,9 @@ public class ReorderActivitiesDtoValidator : AbstractValidator<ReorderActivities
     public ReorderActivitiesDtoValidator()                                                                       
         {                                                                                                            
             RuleFor(x => x.Items)                                                                                    
-                .NotEmpty().WithMessage("Debe enviar al menos una actividad para reordenar.");                       
+                .NotEmpty().WithMessage("Debe enviar al menos una actividad para reordenar.")
+                .Must(items => items.Select(i => i.ActivityId).Distinct().Count() == items.Count)
+                .WithMessage("No se permiten actividades duplicadas en la lista de reordenamiento.");
                                                                                                                      
             RuleForEach(x => x.Items).ChildRules(item =>                                                             
             {                                                                                                        

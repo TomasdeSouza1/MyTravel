@@ -3,16 +3,16 @@ using MyTravel.Domain.Enums;
 
 namespace MyTravel.Application.DTOs.Activities;
 
-public class CreateActivityDto
+public sealed record CreateActivityDto
 {
-    public string Name { get; set; } = "";                                                                       
-    public ActivityCategory Category { get; set; } = ActivityCategory.Attraction;                                
-    public double Latitude { get; set; }                                                                         
-    public double Longitude { get; set; }                                                                        
-    public string? Address { get; set; }                                                                         
-    public TimeOnly StartTime { get; set; }                                                                      
-    public TimeOnly EndTime { get; set; }                                                                        
-    public int OrderIndex { get; set; }                                                                          
-    public string? BookingReference { get; set; }                                                                
-    public string? Notes { get; set; }            
+    public string Name { get; init; } = "";                                                                       
+    public ActivityCategory Category { get; init; } = ActivityCategory.Attraction;                                
+    public double Latitude { get; init; }                                                                         
+    public double Longitude { get; init; }                                                                        
+    public string? Address { get; init; }                                                                         
+    public TimeOnly StartTime { get; init; }                                                                      
+    public TimeOnly EndTime { get; init; }                                                                        
+    public int OrderIndex { get; init; }                                                                          
+    public string? BookingReference { get; init; }                                                                
+    public string? Notes { get; init; }            
 }

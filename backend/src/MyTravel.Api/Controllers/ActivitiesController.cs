@@ -10,19 +10,24 @@ namespace MyTravel.Api.Controllers;
 [ApiController]
 public class ActivitiesController(IActivityService activityService) : ControllerBase
 {
+    private readonly IActivityService _activityService = activityService;
+
     [HttpPost("api/days/{dayId:guid}/activities")]
     [Authorize]
     [ProducesResponseType(typeof(ActivityResponseDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> AddActivity(Guid dayId, [FromBody] CreateActivityDto dto)
     {
         var userId = User.GetUserId();
-        var activity = await activityService.AddActivityAsync(dayId, userId, dto);
+        var activity = await _activityService.AddActivityAsync(dayId, userId, dto);
 
         if (activity == null)
         {
-            return NotFound(new { message = "El día no existe o no tienes permisos para agregar actividades." });
+            return Problem(
+                statusCode: StatusCodes.Status404NotFound,
+                title: "No encontrado",
+                detail: "El día no existe o no tienes permisos para agregar actividades.");
         }
 
         return StatusCode(StatusCodes.Status201Created, activity);
@@ -32,15 +37,18 @@ public class ActivitiesController(IActivityService activityService) : Controller
     [Authorize]
     [ProducesResponseType(typeof(ActivityResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateActivity(Guid id, [FromBody] UpdateActivityDto dto)
     {
         var userId = User.GetUserId();
-        var updated = await activityService.UpdateActivityAsync(id, userId, dto);
+        var updated = await _activityService.UpdateActivityAsync(id, userId, dto);
 
         if (updated == null)
         {
-            return NotFound(new { message = "La actividad no existe o no tienes permisos para actualizarla." });
+            return Problem(
+                statusCode: StatusCodes.Status404NotFound,
+                title: "No encontrado",
+                detail: "La actividad no existe o no tienes permisos para actualizarla.");
         }
 
         return Ok(updated);
@@ -49,15 +57,18 @@ public class ActivitiesController(IActivityService activityService) : Controller
     [HttpDelete("api/activities/{id:guid}")]
     [Authorize]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteActivity(Guid id)
     {
         var userId = User.GetUserId();
-        var deleted = await activityService.DeleteActivityAsync(id, userId);
+        var deleted = await _activityService.DeleteActivityAsync(id, userId);
 
         if (!deleted)
         {
-            return NotFound(new { message = "La actividad no existe o no tienes permisos para eliminarla." });
+            return Problem(
+                statusCode: StatusCodes.Status404NotFound,
+                title: "No encontrado",
+                detail: "La actividad no existe o no tienes permisos para eliminarla.");
         }
 
         return NoContent();
@@ -67,15 +78,18 @@ public class ActivitiesController(IActivityService activityService) : Controller
     [Authorize]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ReorderActivities(Guid dayId, [FromBody] ReorderActivitiesDto dto)
     {
         var userId = User.GetUserId();
-        var success = await activityService.ReorderActivitiesAsync(dayId, userId, dto);
+        var success = await _activityService.ReorderActivitiesAsync(dayId, userId, dto);
 
         if (!success)
         {
-            return NotFound(new { message = "El día no existe o no tienes permisos para reordenar sus actividades." });
+            return Problem(
+                statusCode: StatusCodes.Status404NotFound,
+                title: "No encontrado",
+                detail: "El día no existe o no tienes permisos para reordenar sus actividades.");
         }
 
         return NoContent();

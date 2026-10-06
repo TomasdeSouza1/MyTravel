@@ -3,25 +3,25 @@ using MyTravel.Application.DTOs.ItineraryDays;
 
 namespace MyTravel.Application.DTOs.Trips;
 
-public class TripDetailResponseDto
+public sealed record TripDetailResponseDto
 {
-    public Guid Id { get; set; }                                                                                 
-    public Guid UserId { get; set; }                                                                             
-    public string Title { get; set; } = "";                                                                      
-    public string? Description { get; set; }                                                                     
-    public string DestinationCountry { get; set; } = "";                                                         
-    public string DestinationCity { get; set; } = "";                                                            
-    public string? CoverImageUrl { get; set; }                                                                   
-    public string BaseCurrency { get; set; } = "USD";                                                            
-    public DateOnly StartDate { get; set; }                                                                      
-    public DateOnly EndDate { get; set; }                                                                        
-    public decimal TotalBudget { get; set; }                                                                     
-    public string InviteToken { get; set; } = "";                                                                
-    public bool IsPublic { get; set; }
-    public bool CanEdit { get; set; }
-    public DateTime CreatedAt { get; set; } 
+    public Guid Id { get; init; }                                                                                 
+    public Guid UserId { get; init; }                                                                             
+    public string Title { get; init; } = "";                                                                      
+    public string? Description { get; init; }                                                                     
+    public string DestinationCountry { get; init; } = "";                                                         
+    public string DestinationCity { get; init; } = "";                                                            
+    public string? CoverImageUrl { get; init; }                                                                   
+    public string BaseCurrency { get; init; } = "USD";                                                            
+    public DateOnly StartDate { get; init; }                                                                      
+    public DateOnly EndDate { get; init; }                                                                        
+    public decimal TotalBudget { get; init; }                                                                     
+    public string InviteToken { get; init; } = "";                                                                
+    public bool IsPublic { get; init; }
+    public bool CanEdit { get; init; }
+    public DateTime CreatedAt { get; init; } 
 
-    public List<ItineraryDayResponseDto> Days { get; set; } = [];
+    public List<ItineraryDayResponseDto> Days { get; init; } = [];
 
 
 }
