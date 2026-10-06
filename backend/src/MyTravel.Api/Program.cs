@@ -14,6 +14,8 @@ using MyTravel.Application.DI;
 using MyTravel.Api.Filters;
 using Scalar.AspNetCore;
 using MyTravel.Infrastructure.Services.Trips;
+using MyTravel.Infrastructure.Services.Itineraries;
+using MyTravel.Infrastructure.Services.Activities;
 
 
 
@@ -84,6 +86,8 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITripService, TripService>();
+builder.Services.AddScoped<IItineraryDayService, ItineraryDayService>();
+builder.Services.AddScoped<IActivityService, ActivityService>();
 builder.Services.AddApplication();
 
 builder.Services.AddControllers(options =>

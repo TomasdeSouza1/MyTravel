@@ -27,42 +27,117 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<Guid>, 
     {
         base.OnModelCreating(builder);
 
-        //Claves compuestas
+        // Claves compuestas y relaciones de TripMember
         builder.Entity<TripMember>()
-                       .HasKey(m => new { m.TripId, m.UserId });
+            .HasKey(m => new { m.TripId, m.UserId });
 
         builder.Entity<TripMember>()
-                .HasOne(m => m.User)
-                .WithMany()
-                .HasForeignKey(m => m.UserId)
-                .OnDelete(DeleteBehavior.Restrict);
-        //soft Delete y filtro automatico.
+            .HasOne(m => m.User)
+            .WithMany()
+            .HasForeignKey(m => m.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Soft Delete y filtro automático global
         builder.Entity<Trip>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<ItineraryDay>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<Activity>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<Expense>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<Flight>().HasQueryFilter(e => !e.IsDeleted);
 
-        builder.Entity<Trip>()
-                .Property(t => t.TotalBudget)
-                .HasPrecision(18, 2);
+        // User 
+        builder.Entity<User>(b =>
+        {
+            b.Property(u => u.FullName).HasMaxLength(100).IsRequired();
+        });
 
-        builder.Entity<Expense>()
-            .Property(e => e.OriginalAmount)
-            .HasPrecision(18, 2);
+        // Trip
+        builder.Entity<Trip>(b =>
+        {
+            b.Property(t => t.Title).HasMaxLength(120).IsRequired();
+            b.Property(t => t.Description).HasMaxLength(1000);
+            b.Property(t => t.DestinationCountry).HasMaxLength(100).IsRequired();
+            b.Property(t => t.DestinationCity).HasMaxLength(100).IsRequired();
+            b.Property(t => t.CoverImageUrl).HasMaxLength(500);
+            b.Property(t => t.BaseCurrency).HasMaxLength(3).IsRequired();
+            b.Property(t => t.TotalBudget).HasPrecision(18, 2);
+            b.Property(t => t.InviteToken).HasMaxLength(64).IsRequired();
 
-        builder.Entity<Expense>()
-            .Property(e => e.ConvertedAmount)
-            .HasPrecision(18, 2);
+            b.HasIndex(t => t.InviteToken).IsUnique();
+            b.HasIndex(t => t.UserId);
 
-        builder.Entity<Expense>()
-            .Property(e => e.ExchangeRateUsed)
-            .HasPrecision(18, 6);
+            b.HasOne<User>()
+                .WithMany()
+                .HasForeignKey(t => t.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-        builder.Entity<ItineraryDay>()
-            .Property(d => d.TemperatureC)
-            .HasPrecision(5, 2);
+            b.ToTable(t =>
+            {
+                t.HasCheckConstraint("CK_Trips_TotalBudget", "\"TotalBudget\" >= 0");
+                t.HasCheckConstraint("CK_Trips_Dates", "\"EndDate\" >= \"StartDate\"");
+            });
+        });
 
+        // ItineraryDay
+        builder.Entity<ItineraryDay>(b =>
+        {
+            b.Property(d => d.LocationCountry).HasMaxLength(100).IsRequired();
+            b.Property(d => d.LocationCity).HasMaxLength(100).IsRequired();
+            b.Property(d => d.WeatherSumm).HasMaxLength(200);
+            b.Property(d => d.TemperatureC).HasPrecision(5, 2);
+            b.Property(d => d.Notes).HasMaxLength(2000);
+
+            b.HasIndex(d => new { d.TripId, d.DayNumber });
+
+            b.ToTable(t =>
+            {
+                t.HasCheckConstraint("CK_ItineraryDays_DayNumber", "\"DayNumber\" > 0");
+                t.HasCheckConstraint("CK_ItineraryDays_TemperatureC", "\"TemperatureC\" IS NULL OR (\"TemperatureC\" >= -60 AND \"TemperatureC\" <= 60)");
+            });
+        });
+
+        // Activity
+        builder.Entity<Activity>(b =>
+        {
+            b.Property(a => a.Name).HasMaxLength(150).IsRequired();
+            b.Property(a => a.Address).HasMaxLength(300);
+            b.Property(a => a.BookingReference).HasMaxLength(50);
+            b.Property(a => a.Notes).HasMaxLength(1000);
+
+            b.HasIndex(a => new { a.ItineraryDayId, a.OrderIndex });
+
+            b.ToTable(t =>
+            {
+                t.HasCheckConstraint("CK_Activities_Latitude", "\"Latitude\" >= -90.0 AND \"Latitude\" <= 90.0");
+                t.HasCheckConstraint("CK_Activities_Longitude", "\"Longitude\" >= -180.0 AND \"Longitude\" <= 180.0");
+                t.HasCheckConstraint("CK_Activities_OrderIndex", "\"OrderIndex\" >= 0");
+                t.HasCheckConstraint("CK_Activities_Times", "\"EndTime\" >= \"StartTime\"");
+            });
+        });
+
+        // Expense
+        builder.Entity<Expense>(b =>
+        {
+            b.Property(e => e.OriginalCurrency).HasMaxLength(3).IsRequired();
+            b.Property(e => e.OriginalAmount).HasPrecision(18, 2);
+            b.Property(e => e.ConvertedAmount).HasPrecision(18, 2);
+            b.Property(e => e.ExchangeRateUsed).HasPrecision(18, 6);
+
+            b.HasIndex(e => e.ActivityId);
+
+            b.HasOne<Activity>()
+                .WithMany()
+                .HasForeignKey(e => e.ActivityId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            b.ToTable(t =>
+            {
+                t.HasCheckConstraint("CK_Expenses_OriginalAmount", "\"OriginalAmount\" >= 0");
+                t.HasCheckConstraint("CK_Expenses_ConvertedAmount", "\"ConvertedAmount\" >= 0");
+                t.HasCheckConstraint("CK_Expenses_ExchangeRateUsed", "\"ExchangeRateUsed\" > 0");
+            });
+        });
+
+        // Flight
         builder.Entity<Flight>(b =>
         {
             b.Property(f => f.Airline).HasMaxLength(100).IsRequired();

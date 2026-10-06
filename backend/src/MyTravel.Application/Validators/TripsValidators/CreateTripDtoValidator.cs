@@ -11,7 +11,7 @@ public class CreateTripDtoValidator : AbstractValidator<CreateTripDto>
         RuleFor(x=>x.Title)
         .NotEmpty().WithMessage("El Titulo del viaje es obligatorio")
         .MinimumLength(3).WithMessage("El Titulo debe tener al menos 3 caracteres")
-        .MaximumLength(60).WithMessage("El titulo no puede superar los 60 caracteres");
+        .MaximumLength(120).WithMessage("El título no puede superar los 120 caracteres.");
 
          RuleFor(x => x.DestinationCountry)                                                                       
                 .NotEmpty().WithMessage("El país de destino es obligatorio.")                                        
