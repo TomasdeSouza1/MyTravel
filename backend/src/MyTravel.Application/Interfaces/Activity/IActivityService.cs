@@ -1,6 +1,6 @@
 using MyTravel.Application.DTOs.Activities;
 
-namespace MyTravel.Application.Interfaces;
+namespace MyTravel.Application.Interfaces.Activity;
 
 public interface IActivityService
 {

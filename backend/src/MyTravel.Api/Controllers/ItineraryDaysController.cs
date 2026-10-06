@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MyTravel.Api.Extensions;
 using MyTravel.Application.DTOs.ItineraryDays;
-using MyTravel.Application.Interfaces;
+using MyTravel.Application.Interfaces.Itinerary;
 
 namespace MyTravel.Api.Controllers;
 

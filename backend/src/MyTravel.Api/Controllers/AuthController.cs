@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using MyTravel.Application.DTOs.Auth;
-using MyTravel.Application.Interfaces;
+using MyTravel.Application.Interfaces.Auth;
 
 namespace MyTravel.Api.Controllers;
 

@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using MyTravel.Application.DTOs.Activities;
 using MyTravel.Application.DTOs.ItineraryDays;
-using MyTravel.Application.Interfaces;
+using MyTravel.Application.Interfaces.Itinerary;
 using MyTravel.Domain.Entities;
 using MyTravel.Domain.Enums;
 using MyTravel.Infrastructure.Persistence;

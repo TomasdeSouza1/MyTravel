@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;                                                                                                                                                                                                                               
 using MyTravel.Api.Extensions;                                                                                                                         
 using MyTravel.Application.DTOs.Trips;                                                                                                                 
-using MyTravel.Application.Interfaces;
+using MyTravel.Application.Interfaces.Trip;
 
 namespace MyTravel.Api.Controllers
 {

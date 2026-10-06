@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using MyTravel.Application.DTOs.Auth;
-using MyTravel.Application.Interfaces;
+using MyTravel.Application.Interfaces.Auth;
 using MyTravel.Domain.Entities;
 
 namespace MyTravel.Infrastructure.Services;

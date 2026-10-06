@@ -1,6 +1,6 @@
 using MyTravel.Application.DTOs.ItineraryDays;
 
-namespace MyTravel.Application.Interfaces;
+namespace MyTravel.Application.Interfaces.Itinerary;
 
 public interface IItineraryDayService
 {
