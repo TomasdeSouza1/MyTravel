@@ -1,18 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+namespace MyTravel.Application.DTOs.Auth;
 
-namespace MyTravel.Application.DTOs.Auth
+public sealed record LoginRequestDto
 {
-    public record LoginRequestDto
-    {
-        [Required(ErrorMessage = "El correo electrónico es obligatorio.")]
-        [EmailAddress(ErrorMessage = "El correo electrónico no tiene un formato válido.")]
-        public string Email { get; init; } = string.Empty;
-        [Required(ErrorMessage = "La contraseña es obligatoria.")]
-        public string Password { get; init; } = string.Empty;
-    }
+    public string Email { get; init; } = string.Empty;
+    public string Password { get; init; } = string.Empty;
 }

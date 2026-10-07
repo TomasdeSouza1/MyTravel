@@ -2,16 +2,16 @@ using System;
 
 namespace MyTravel.Application.DTOs.Trips;
 
-public class UpdateTripDto
+public sealed record UpdateTripDto
 {
-    public string Title { get; set; } = "";                                                                      
-    public string? Description { get; set; }                                                                     
-    public string DestinationCountry { get; set; } = "";                                                         
-    public string DestinationCity { get; set; } = "";                                                            
-    public string? CoverImageUrl { get; set; }                                                                   
-    public string BaseCurrency { get; set; } = "USD";                                                            
-    public DateOnly StartDate { get; set; }                                                                      
-    public DateOnly EndDate { get; set; }                                                                        
-    public decimal TotalBudget { get; set; }  
-    public bool IsPublic { get; set; } = false;
+    public string Title { get; init; } = "";                                                                      
+    public string? Description { get; init; }                                                                     
+    public string DestinationCountry { get; init; } = "";                                                         
+    public string DestinationCity { get; init; } = "";                                                            
+    public string? CoverImageUrl { get; init; }                                                                   
+    public string BaseCurrency { get; init; } = "USD";                                                            
+    public DateOnly StartDate { get; init; }                                                                      
+    public DateOnly EndDate { get; init; }                                                                        
+    public decimal TotalBudget { get; init; }  
+    public bool IsPublic { get; init; } = false;
 }

@@ -41,18 +41,16 @@ public class ItineraryDayService(ApplicationDbContext context) : IItineraryDaySe
 
     public async Task<ItineraryDayResponseDto?> UpdateDayAsync(Guid dayId, Guid userId, UpdateItineraryDayDto dto)
     {
+        
         var day = await context.ItineraryDays
             .Include(d => d.Activities.OrderBy(a => a.OrderIndex))
+            .Include(d => d.Trip)
+                .ThenInclude(t => t!.Members)
             .FirstOrDefaultAsync(d => d.Id == dayId);
 
-        if (day == null) return null;
+        if (day?.Trip == null) return null;
 
-        var trip = await context.Trips
-            .Include(t => t.Members)
-            .FirstOrDefaultAsync(t => t.Id == day.TripId);
-
-        if (trip == null) return null;
-
+        var trip = day.Trip;
         var canEdit = trip.UserId == userId || trip.Members.Any(m => m.UserId == userId && (m.Role == MemberRole.Owner || m.Role == MemberRole.Editor));
         if (!canEdit) return null;
 
@@ -69,18 +67,16 @@ public class ItineraryDayService(ApplicationDbContext context) : IItineraryDaySe
 
     public async Task<bool> DeleteDayAsync(Guid dayId, Guid userId)
     {
+        
         var day = await context.ItineraryDays
             .Include(d => d.Activities)
+            .Include(d => d.Trip)
+                .ThenInclude(t => t!.Members)
             .FirstOrDefaultAsync(d => d.Id == dayId);
 
-        if (day == null) return false;
+        if (day?.Trip == null) return false;
 
-        var trip = await context.Trips
-            .Include(t => t.Members)
-            .FirstOrDefaultAsync(t => t.Id == day.TripId);
-
-        if (trip == null) return false;
-
+        var trip = day.Trip;
         var canEdit = trip.UserId == userId || trip.Members.Any(m => m.UserId == userId && (m.Role == MemberRole.Owner || m.Role == MemberRole.Editor));
         if (!canEdit) return false;
 

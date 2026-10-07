@@ -36,8 +36,7 @@ public class CreateTripDtoValidatorTests
     [InlineData("ab")] // Menor a 3 caracteres
     public void Validate_InvalidTitle_ShouldHaveValidationError(string title)
     {
-        var dto = CreateValidDto();
-        dto.Title = title;
+        var dto = CreateValidDto() with { Title = title };
 
         var result = _validator.Validate(dto);
 
@@ -52,8 +51,7 @@ public class CreateTripDtoValidatorTests
     [InlineData("123")]   // números
     public void Validate_InvalidBaseCurrency_ShouldHaveValidationError(string currency)
     {
-        var dto = CreateValidDto();
-        dto.BaseCurrency = currency;
+        var dto = CreateValidDto() with { BaseCurrency = currency };
 
         var result = _validator.Validate(dto);
 
@@ -64,8 +62,7 @@ public class CreateTripDtoValidatorTests
     [Fact]
     public void Validate_NegativeBudget_ShouldHaveValidationError()
     {
-        var dto = CreateValidDto();
-        dto.TotalBudget = -10;
+        var dto = CreateValidDto() with { TotalBudget = -10 };
 
         var result = _validator.Validate(dto);
 
@@ -76,9 +73,11 @@ public class CreateTripDtoValidatorTests
     [Fact]
     public void Validate_EndDateBeforeStartDate_ShouldHaveValidationError()
     {
-        var dto = CreateValidDto();
-        dto.StartDate = new DateOnly(2026, 10, 15);
-        dto.EndDate = new DateOnly(2026, 10, 10);
+        var dto = CreateValidDto() with
+        {
+            StartDate = new DateOnly(2026, 10, 15),
+            EndDate = new DateOnly(2026, 10, 10)
+        };
 
         var result = _validator.Validate(dto);
 
@@ -89,9 +88,11 @@ public class CreateTripDtoValidatorTests
     [Fact]
     public void Validate_TripExceeds50Days_ShouldHaveValidationError()
     {
-        var dto = CreateValidDto();
-        dto.StartDate = new DateOnly(2026, 1, 1);
-        dto.EndDate = new DateOnly(2026, 3, 1); // 59 días
+        var dto = CreateValidDto() with
+        {
+            StartDate = new DateOnly(2026, 1, 1),
+            EndDate = new DateOnly(2026, 3, 1) // 59 días
+        };
 
         var result = _validator.Validate(dto);
 
@@ -102,8 +103,7 @@ public class CreateTripDtoValidatorTests
     [Fact]
     public void Validate_InvalidCoverImageUrl_ShouldHaveValidationError()
     {
-        var dto = CreateValidDto();
-        dto.CoverImageUrl = "not-a-valid-url";
+        var dto = CreateValidDto() with { CoverImageUrl = "not-a-valid-url" };
 
         var result = _validator.Validate(dto);
 

@@ -5,6 +5,7 @@ namespace MyTravel.Domain.Entities;
 public class Activity : BaseEntity
 {
    public Guid ItineraryDayId { get; set; }
+   public ItineraryDay? ItineraryDay { get; set; }
    public string Name { get; set; } = "";
    public ActivityCategory Category { get; set; } = ActivityCategory.Attraction;
    public double Latitude { get; set; }

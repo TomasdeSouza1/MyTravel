@@ -2,12 +2,13 @@ using System;
 
 namespace MyTravel.Application.DTOs.Activities;
 
-public class ReorderActivitiesDto
+public sealed record ReorderActivitiesDto
 {
-    public List<ActivityOrderItemDto> Items{get;set;}=[];
+    public List<ActivityOrderItemDto> Items { get; init; } = [];
 }
-public class ActivityOrderItemDto
+
+public sealed record ActivityOrderItemDto
 {
-    public Guid ActivityId {get; set;}
-    public int NewOrderIndex{get; set;}
+    public Guid ActivityId { get; init; }
+    public int NewOrderIndex { get; init; }
 }

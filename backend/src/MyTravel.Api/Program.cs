@@ -34,6 +34,8 @@ builder.Services.AddHealthChecks()
 //Manejo de excepciones 
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+// OpenAPI / Scalar - el registro es obligatorio antes de app.MapOpenApi()
+builder.Services.AddOpenApi();
 
 //RateLimiting
 builder.Services.AddRateLimiter(rateLimiterOptions =>                                                            
@@ -115,7 +117,7 @@ app.UseRateLimiter();
 //Authentication antes de Authorization                                                   
 app.UseAuthentication();
 app.UseAuthorization();
-//Endpoint de saluid del sistema 
+//Endpoint de salud del sistema 
 app.MapHealthChecks("/health");                                
 app.MapControllers().RequireRateLimiting("fixed-by-ip");
 

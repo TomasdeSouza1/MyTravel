@@ -37,8 +37,7 @@ public class UpdateActivityDtoValidatorTests
     [InlineData("A")]
     public void Validate_InvalidName_ShouldHaveValidationError(string name)
     {
-        var dto = CreateValidDto();
-        dto.Name = name;
+        var dto = CreateValidDto() with { Name = name };
 
         var result = _validator.Validate(dto);
 
@@ -51,8 +50,7 @@ public class UpdateActivityDtoValidatorTests
     [InlineData(95.0)]
     public void Validate_InvalidLatitude_ShouldHaveValidationError(double lat)
     {
-        var dto = CreateValidDto();
-        dto.Latitude = lat;
+        var dto = CreateValidDto() with { Latitude = lat };
 
         var result = _validator.Validate(dto);
 
@@ -65,8 +63,7 @@ public class UpdateActivityDtoValidatorTests
     [InlineData(185.0)]
     public void Validate_InvalidLongitude_ShouldHaveValidationError(double lng)
     {
-        var dto = CreateValidDto();
-        dto.Longitude = lng;
+        var dto = CreateValidDto() with { Longitude = lng };
 
         var result = _validator.Validate(dto);
 
@@ -77,9 +74,11 @@ public class UpdateActivityDtoValidatorTests
     [Fact]
     public void Validate_EndTimeBeforeStartTime_ShouldHaveValidationError()
     {
-        var dto = CreateValidDto();
-        dto.StartTime = new TimeOnly(18, 0);
-        dto.EndTime = new TimeOnly(16, 0);
+        var dto = CreateValidDto() with
+        {
+            StartTime = new TimeOnly(18, 0),
+            EndTime = new TimeOnly(16, 0)
+        };
 
         var result = _validator.Validate(dto);
 

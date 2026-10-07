@@ -3,6 +3,7 @@ namespace MyTravel.Domain.Entities;
 public class ItineraryDay : BaseEntity
 {
     public Guid TripId { get; set; } 
+    public Trip? Trip { get; set; }
     public int DayNumber { get; set; }
     public DateOnly Date { get; set; }
     public string LocationCountry { get; set; } = "";

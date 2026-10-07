@@ -100,7 +100,9 @@ public class TripService(ApplicationDbContext context) : ITripService
                 StartDate = t.StartDate,                                                                                                               
                 EndDate = t.EndDate,                                                                                                                   
                 TotalBudget = t.TotalBudget,                                                                                                           
-                InviteToken = t.InviteToken,                                                                                                           
+                // Seguridad: el InviteToken nunca se expone en feeds públicos anónimos.
+                // Cualquiera con este token puede unirse como Editor al viaje ajeno.
+                InviteToken = string.Empty,                                                                                                           
                 IsPublic = t.IsPublic,                                                                                                                 
                 CreatedAt = t.CreatedAt  
             })
@@ -136,7 +138,9 @@ public class TripService(ApplicationDbContext context) : ITripService
                 StartDate = trip.StartDate,                                                                                                                
                 EndDate = trip.EndDate,                                                                                                                    
                 TotalBudget = trip.TotalBudget,                                                                                                            
-                InviteToken = trip.InviteToken,                                                                                                            
+                // Seguridad: solo el owner o un miembro puede ver el token de invitación.
+                // Un visitante anónimo de un viaje público nunca debe recibirlo.
+                InviteToken = isOwnerOrMember ? trip.InviteToken : string.Empty,                                                                      
                 IsPublic = trip.IsPublic,                                                                                                                  
                 CanEdit = isOwnerOrMember,                                                                                                                 
                 CreatedAt = trip.CreatedAt,                                                                                                                
@@ -199,12 +203,29 @@ public class TripService(ApplicationDbContext context) : ITripService
 
     public async Task<bool> DeleteTripAsync(Guid tripId, Guid userId)
     {
-      var trip = await context.Trips.FirstOrDefaultAsync(t => t.Id == tripId);
-        if(trip == null) return false;
-      //solo el usuario owner puede Eliminar el trip
-        if(trip.UserId != userId) return false;
+        // Cargamos el viaje junto con todos sus hijos para propagar el soft delete.
+        // ON DELETE CASCADE de PostgreSQL solo aplica a sentencias DELETE reales,
+        // nunca a un UPDATE de IsDeleted = true.
+        var trip = await context.Trips
+            .Include(t => t.Days)
+                .ThenInclude(d => d.Activities)
+            .FirstOrDefaultAsync(t => t.Id == tripId);
 
+        if (trip == null) return false;
+
+        // Solo el Owner puede eliminar el viaje.
+        if (trip.UserId != userId) return false;
+
+        // Propagar soft delete a todos los descendientes.
         trip.IsDeleted = true;
+
+        foreach (var day in trip.Days)
+        {
+            day.IsDeleted = true;
+            foreach (var activity in day.Activities)
+                activity.IsDeleted = true;
+        }
+
         await context.SaveChangesAsync();
         return true;
     }

@@ -32,8 +32,7 @@ public class UpdateItineraryDayDtoValidatorTests
     [InlineData(" ")]
     public void Validate_EmptyLocationCountry_ShouldHaveValidationError(string country)
     {
-        var dto = CreateValidDto();
-        dto.LocationCountry = country;
+        var dto = CreateValidDto() with { LocationCountry = country };
 
         var result = _validator.Validate(dto);
 
@@ -46,8 +45,7 @@ public class UpdateItineraryDayDtoValidatorTests
     [InlineData(" ")]
     public void Validate_EmptyLocationCity_ShouldHaveValidationError(string city)
     {
-        var dto = CreateValidDto();
-        dto.LocationCity = city;
+        var dto = CreateValidDto() with { LocationCity = city };
 
         var result = _validator.Validate(dto);
 
@@ -60,8 +58,7 @@ public class UpdateItineraryDayDtoValidatorTests
     [InlineData(65.0)]
     public void Validate_TemperatureOutOfRange_ShouldHaveValidationError(decimal temp)
     {
-        var dto = CreateValidDto();
-        dto.TemperatureC = temp;
+        var dto = CreateValidDto() with { TemperatureC = temp };
 
         var result = _validator.Validate(dto);
 
