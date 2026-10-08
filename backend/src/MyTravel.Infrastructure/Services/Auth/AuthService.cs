@@ -33,7 +33,8 @@ public class AuthService : IAuthService
         {
             UserName = dto.Email,
             Email = dto.Email,
-            FullName = dto.FullName
+            FullName = dto.FullName,
+            LockoutEnabled = true
         };
 
         var result1 = await uManager.CreateAsync(user, dto.Password);
@@ -70,12 +71,20 @@ public class AuthService : IAuthService
         {
             return (false, null, "Credenciales Invalidas");
         }
+
+        if (await uManager.IsLockedOutAsync(user))
+        {
+            return (false, null, "La cuenta está bloqueada temporalmente por demasiados intentos fallidos. Intente más tarde.");
+        }
     
         var isPasswordValid = await uManager.CheckPasswordAsync(user , dto.Password);
         if (!isPasswordValid)
         {
-            return (false,null, "Credenciales Invalidas.");
+            await uManager.AccessFailedAsync(user);
+            return (false, null, "Credenciales Invalidas.");
         }
+
+        await uManager.ResetAccessFailedCountAsync(user);
         var roles = await uManager.GetRolesAsync(user);
         var token = TService.GenerateToken(user,roles);
 

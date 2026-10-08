@@ -19,8 +19,11 @@ namespace MyTravel.Infrastructure.Services
 
         public string GenerateToken(User user, IList<string> roles)
         {
-            var secretKey = _config["Jwt:Key"]
-                ?? throw new InvalidOperationException("La clave de JWT no esta configurada");
+            var secretKey = _config["Jwt:Key"];
+            if (string.IsNullOrWhiteSpace(secretKey))
+            {
+                throw new InvalidOperationException("La clave de JWT no está configurada.");
+            }
             var issuer = _config["Jwt:Issuer"];
             var audience = _config["Jwt:Audience"];
             var expiryMinutes = double.Parse(_config["Jwt:ExpiryInMinutes"] ?? "60");
