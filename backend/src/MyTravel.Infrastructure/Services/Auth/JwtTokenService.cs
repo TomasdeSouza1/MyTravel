@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -20,13 +21,15 @@ namespace MyTravel.Infrastructure.Services
         public string GenerateToken(User user, IList<string> roles)
         {
             var secretKey = _config["Jwt:Key"];
-            if (string.IsNullOrWhiteSpace(secretKey))
+            if (string.IsNullOrWhiteSpace(secretKey) || Encoding.UTF8.GetByteCount(secretKey) < 32)
             {
                 throw new InvalidOperationException("La clave de JWT no está configurada.");
             }
             var issuer = _config["Jwt:Issuer"];
             var audience = _config["Jwt:Audience"];
-            var expiryMinutes = double.Parse(_config["Jwt:ExpiryInMinutes"] ?? "60");
+            var expiryMinutes = double.TryParse(_config["Jwt:ExpiryInMinutes"], NumberStyles.Any, CultureInfo.InvariantCulture, out var parsedExpiry)
+                ? parsedExpiry
+                : 60;
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

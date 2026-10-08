@@ -75,7 +75,7 @@ builder.Services.AddIdentityCore<User>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>();
 //JWT
 var jwtKey = builder.Configuration["Jwt:Key"];
-if (string.IsNullOrWhiteSpace(jwtKey))
+if (string.IsNullOrWhiteSpace(jwtKey) || Encoding.UTF8.GetByteCount(jwtKey) < 32)
 {
     throw new InvalidOperationException("Jwt:Key no está configurado.");
 }
