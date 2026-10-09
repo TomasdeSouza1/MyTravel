@@ -2,7 +2,7 @@ using MyTravel.Application.DTOs.Trips;
 using MyTravel.Application.Validators;
 using Xunit;
 
-namespace MyTravel.UnitTests.ValidatorsTests;
+namespace MyTravel.UnitTests.ValidatorsTests.TripsValidators;
 
 public class UpdateTripDtoValidatorTests
 {
