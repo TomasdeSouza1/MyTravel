@@ -19,6 +19,8 @@ using Scalar.AspNetCore;
 using MyTravel.Infrastructure.Services.Trips;
 using MyTravel.Infrastructure.Services.Itineraries;
 using MyTravel.Infrastructure.Services.Activities;
+using MyTravel.Application.Interfaces.Flights;                                                                                                         
+using MyTravel.Infrastructure.Services.Flights; 
 
 
 
@@ -106,6 +108,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITripService, TripService>();
 builder.Services.AddScoped<IItineraryDayService, ItineraryDayService>();
 builder.Services.AddScoped<IActivityService, ActivityService>();
+builder.Services.AddScoped<IFlightService, FlightService>();
 builder.Services.AddApplication();
 
 builder.Services.AddControllers(options =>

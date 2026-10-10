@@ -140,6 +140,7 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<Guid>, 
         // Flight
         builder.Entity<Flight>(b =>
         {
+            b.HasIndex(f => f.TripId);
             b.Property(f => f.Airline).HasMaxLength(100).IsRequired();
             b.Property(f => f.FlightNumber).HasMaxLength(20).IsRequired();
             b.Property(f => f.DepartureAirport).HasMaxLength(10).IsRequired();
@@ -147,7 +148,8 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<Guid>, 
             b.Property(f => f.BookingReference).HasMaxLength(50);
             b.Property(f => f.Terminal).HasMaxLength(20);
             b.Property(f => f.Gate).HasMaxLength(20);
-            b.Property(f => f.Notes).HasMaxLength(1000);
+            b.Property(f => f.SeatNumber).HasMaxLength(10);
+            b.Property(f => f.Notes).HasMaxLength(100);
         });
     }
 
