@@ -2,7 +2,7 @@ using MyTravel.Application.DTOs.Activities;
 using MyTravel.Application.Validators.ActivityValidators;
 using Xunit;
 
-namespace MyTravel.UnitTests.ValidatorsTests;
+namespace MyTravel.UnitTests.ValidatorsTests.ActivityValidators;
 
 public class ReorderActivitiesDtoValidatorTests
 {

@@ -3,7 +3,7 @@ using MyTravel.Application.Validators.ActivityValidators;
 using MyTravel.Domain.Enums;
 using Xunit;
 
-namespace MyTravel.UnitTests.ValidatorsTests;
+namespace MyTravel.UnitTests.ValidatorsTests.ActivityValidators;
 
 public class CreateActivityDtoValidatorTests
 {
