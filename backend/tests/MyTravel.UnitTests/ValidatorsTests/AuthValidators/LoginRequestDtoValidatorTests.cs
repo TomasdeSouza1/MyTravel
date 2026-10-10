@@ -2,7 +2,7 @@ using MyTravel.Application.DTOs.Auth;
 using MyTravel.Application.Validators.AuthValidators;
 using Xunit;
 
-namespace MyTravel.UnitTests.ValidatorsTests;
+namespace MyTravel.UnitTests.ValidatorsTests.AuthValidators;
 
 public class LoginRequestDtoValidatorTests
 {

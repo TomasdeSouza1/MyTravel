@@ -2,7 +2,7 @@ using MyTravel.Application.DTOs.ItineraryDays;
 using MyTravel.Application.Validators.ItineraryValidators;
 using Xunit;
 
-namespace MyTravel.UnitTests.ValidatorsTests;
+namespace MyTravel.UnitTests.ValidatorsTests.ItineraryValidators;
 
 public class CreateItineraryDayDtoValidatorTests
 {
