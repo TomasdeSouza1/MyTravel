@@ -322,8 +322,8 @@ namespace MyTravel.Infrastructure.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("Notes")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("SeatNumber")
                         .HasMaxLength(10)
@@ -643,11 +643,13 @@ namespace MyTravel.Infrastructure.Migrations
 
             modelBuilder.Entity("MyTravel.Domain.Entities.Flight", b =>
                 {
-                    b.HasOne("MyTravel.Domain.Entities.Trip", null)
+                    b.HasOne("MyTravel.Domain.Entities.Trip", "Trip")
                         .WithMany("Flights")
                         .HasForeignKey("TripId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Trip");
                 });
 
             modelBuilder.Entity("MyTravel.Domain.Entities.ItineraryDay", b =>

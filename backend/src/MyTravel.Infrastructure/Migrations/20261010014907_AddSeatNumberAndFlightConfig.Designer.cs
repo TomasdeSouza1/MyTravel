@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MyTravel.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20261009232438_AddSeatNumberToFlight")]
-    partial class AddSeatNumberToFlight
+    [Migration("20261010014907_AddSeatNumberAndFlightConfig")]
+    partial class AddSeatNumberAndFlightConfig
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -325,8 +325,8 @@ namespace MyTravel.Infrastructure.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("Notes")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("SeatNumber")
                         .HasMaxLength(10)
@@ -646,11 +646,13 @@ namespace MyTravel.Infrastructure.Migrations
 
             modelBuilder.Entity("MyTravel.Domain.Entities.Flight", b =>
                 {
-                    b.HasOne("MyTravel.Domain.Entities.Trip", null)
+                    b.HasOne("MyTravel.Domain.Entities.Trip", "Trip")
                         .WithMany("Flights")
                         .HasForeignKey("TripId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Trip");
                 });
 
             modelBuilder.Entity("MyTravel.Domain.Entities.ItineraryDay", b =>
