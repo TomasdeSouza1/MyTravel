@@ -95,4 +95,41 @@ public class UpdateTripDtoValidatorTests
         Assert.False(result.IsValid);
         Assert.Contains(result.Errors, e => e.PropertyName == nameof(UpdateTripDto.EndDate));
     }
+
+    [Theory]
+    [InlineData("not-a-valid-url")]
+    [InlineData("javascript:alert(1)")]
+    [InlineData("ftp://example.com/file.jpg")]
+    public void Validate_InvalidCoverImageUrl_ShouldHaveValidationError(string invalidUrl)
+    {
+        var dto = CreateValidDto() with { CoverImageUrl = invalidUrl };
+
+        var result = _validator.Validate(dto);
+
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, e => e.PropertyName == nameof(UpdateTripDto.CoverImageUrl));
+    }
+
+    [Fact]
+    public void Validate_CoverImageUrlExceeds500Chars_ShouldHaveValidationError()
+    {
+        var longUrl = "https://example.com/" + new string('a', 490);
+        var dto = CreateValidDto() with { CoverImageUrl = longUrl };
+
+        var result = _validator.Validate(dto);
+
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, e => e.PropertyName == nameof(UpdateTripDto.CoverImageUrl));
+    }
+
+    [Fact]
+    public void Validate_DescriptionExceeds1000Chars_ShouldHaveValidationError()
+    {
+        var dto = CreateValidDto() with { Description = new string('A', 1001) };
+
+        var result = _validator.Validate(dto);
+
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, e => e.PropertyName == nameof(UpdateTripDto.Description));
+    }
 }

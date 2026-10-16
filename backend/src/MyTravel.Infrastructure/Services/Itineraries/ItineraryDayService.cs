@@ -21,6 +21,14 @@ public class ItineraryDayService(ApplicationDbContext context) : IItineraryDaySe
         var canEdit = trip.UserId == userId || trip.Members.Any(m => m.UserId == userId && (m.Role == MemberRole.Owner || m.Role == MemberRole.Editor));
         if (!canEdit) return null;
 
+        if (dto.Date < trip.StartDate || dto.Date > trip.EndDate)
+            return null;
+
+        var dayExists = await context.ItineraryDays
+            .AnyAsync(d => d.TripId == tripId && (d.DayNumber == dto.DayNumber || d.Date == dto.Date));
+        if (dayExists)
+            return null;
+
         var day = new ItineraryDay
         {
             TripId = tripId,
@@ -41,7 +49,6 @@ public class ItineraryDayService(ApplicationDbContext context) : IItineraryDaySe
 
     public async Task<ItineraryDayResponseDto?> UpdateDayAsync(Guid dayId, Guid userId, UpdateItineraryDayDto dto)
     {
-        
         var day = await context.ItineraryDays
             .Include(d => d.Activities.OrderBy(a => a.OrderIndex))
             .Include(d => d.Trip)
@@ -67,7 +74,6 @@ public class ItineraryDayService(ApplicationDbContext context) : IItineraryDaySe
 
     public async Task<bool> DeleteDayAsync(Guid dayId, Guid userId)
     {
-        
         var day = await context.ItineraryDays
             .Include(d => d.Activities)
             .Include(d => d.Trip)
@@ -84,6 +90,18 @@ public class ItineraryDayService(ApplicationDbContext context) : IItineraryDaySe
         foreach (var activity in day.Activities)
         {
             activity.IsDeleted = true;
+        }
+
+        var activityIds = day.Activities.Select(a => a.Id).ToList();
+        if (activityIds.Count > 0)
+        {
+            var linkedExpenses = await context.Expenses
+                .Where(e => e.ActivityId.HasValue && activityIds.Contains(e.ActivityId.Value))
+                .ToListAsync();
+            foreach (var expense in linkedExpenses)
+            {
+                expense.ActivityId = null;
+            }
         }
 
         await context.SaveChangesAsync();

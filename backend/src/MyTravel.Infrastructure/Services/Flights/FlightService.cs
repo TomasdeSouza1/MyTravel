@@ -13,6 +13,7 @@ public class FlightService(ApplicationDbContext context) : IFlightService
     public async Task<IEnumerable<FlightResponseDto>?> GetFlightsByTripIdAsync(Guid tripId, Guid userId)
     {
         var trip = await context.Trips
+            .AsNoTracking()
             .Include(t => t.Members)
             .FirstOrDefaultAsync(t => t.Id == tripId);
 
@@ -22,6 +23,7 @@ public class FlightService(ApplicationDbContext context) : IFlightService
         if (!canView) return null;
 
         var flights = await context.Flights
+            .AsNoTracking()
             .Where(f => f.TripId == tripId)
             .OrderBy(f => f.DepartureTime)
             .ToListAsync();
@@ -32,6 +34,7 @@ public class FlightService(ApplicationDbContext context) : IFlightService
     public async Task<FlightResponseDto?> GetFlightByIdAsync(Guid flightId, Guid userId)
     {
         var flight = await context.Flights
+            .AsNoTracking()
             .Include(f => f.Trip)
                 .ThenInclude(t => t!.Members)
             .FirstOrDefaultAsync(f => f.Id == flightId);
@@ -61,8 +64,8 @@ public class FlightService(ApplicationDbContext context) : IFlightService
             TripId = tripId,
             Airline = dto.Airline,
             FlightNumber = dto.FlightNumber,
-            DepartureAirport = dto.DepartureAirport,
-            ArrivalAirport = dto.ArrivalAirport,
+            DepartureAirport = dto.DepartureAirport.ToUpperInvariant(),
+            ArrivalAirport = dto.ArrivalAirport.ToUpperInvariant(),
             DepartureTime = DateTime.SpecifyKind(dto.DepartureTime, DateTimeKind.Utc),
             ArrivalTime = DateTime.SpecifyKind(dto.ArrivalTime, DateTimeKind.Utc),
             BookingReference = dto.BookingReference,
@@ -91,8 +94,8 @@ public class FlightService(ApplicationDbContext context) : IFlightService
 
         flight.Airline = dto.Airline;
         flight.FlightNumber = dto.FlightNumber;
-        flight.DepartureAirport = dto.DepartureAirport;
-        flight.ArrivalAirport = dto.ArrivalAirport;
+        flight.DepartureAirport = dto.DepartureAirport.ToUpperInvariant();
+        flight.ArrivalAirport = dto.ArrivalAirport.ToUpperInvariant();
         flight.DepartureTime = DateTime.SpecifyKind(dto.DepartureTime, DateTimeKind.Utc);
         flight.ArrivalTime = DateTime.SpecifyKind(dto.ArrivalTime, DateTimeKind.Utc);
         flight.BookingReference = dto.BookingReference;

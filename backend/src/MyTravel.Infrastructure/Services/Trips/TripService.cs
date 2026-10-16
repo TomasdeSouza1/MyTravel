@@ -1,6 +1,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;                                                                                                                   
 using MyTravel.Application.DTOs.Activities;                                                                                                            
+using MyTravel.Application.DTOs.Flights;
 using MyTravel.Application.DTOs.ItineraryDays;                                                                                                         
 using MyTravel.Application.DTOs.Trips;                                                                                                                 
 using MyTravel.Application.Interfaces.Trip;                                                                                                                 
@@ -114,6 +115,7 @@ public class TripService(ApplicationDbContext context) : ITripService
          var trip = await context.Trips                                                                                                                 
                 .AsNoTracking()                                                                                                                            
                 .Include(t => t.Members)                                                                                                                   
+                .Include(t => t.Flights.OrderBy(f => f.DepartureTime))
                 .Include(t => t.Days.OrderBy(d => d.DayNumber))                                                                                            
                     .ThenInclude(d => d.Activities.OrderBy(a => a.OrderIndex))                                                                             
                 .FirstOrDefaultAsync(t => t.Id == tripId);
@@ -170,7 +172,25 @@ public class TripService(ApplicationDbContext context) : ITripService
                         BookingReference = a.BookingReference,                                                                                             
                         Notes = a.Notes                                                                                                                    
                     })]
-                })]
+                })],
+                Flights = isOwnerOrMember
+                    ? [.. trip.Flights.Select(f => new FlightResponseDto
+                    {
+                        Id = f.Id,
+                        TripId = f.TripId,
+                        Airline = f.Airline,
+                        FlightNumber = f.FlightNumber,
+                        DepartureAirport = f.DepartureAirport,
+                        ArrivalAirport = f.ArrivalAirport,
+                        DepartureTime = f.DepartureTime,
+                        ArrivalTime = f.ArrivalTime,
+                        BookingReference = f.BookingReference,
+                        Terminal = f.Terminal,
+                        Gate = f.Gate,
+                        SeatNumber = f.SeatNumber,
+                        Notes = f.Notes
+                    })]
+                    : []
         };             
         }
 
@@ -209,6 +229,8 @@ public class TripService(ApplicationDbContext context) : ITripService
         var trip = await context.Trips
             .Include(t => t.Days)
                 .ThenInclude(d => d.Activities)
+            .Include(t => t.Flights)
+            .Include(t => t.Expenses)
             .FirstOrDefaultAsync(t => t.Id == tripId);
 
         if (trip == null) return false;
@@ -223,7 +245,19 @@ public class TripService(ApplicationDbContext context) : ITripService
         {
             day.IsDeleted = true;
             foreach (var activity in day.Activities)
+            {
                 activity.IsDeleted = true;
+            }
+        }
+
+        foreach (var flight in trip.Flights)
+        {
+            flight.IsDeleted = true;
+        }
+
+        foreach (var expense in trip.Expenses)
+        {
+            expense.IsDeleted = true;
         }
 
         await context.SaveChangesAsync();

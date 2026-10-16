@@ -68,7 +68,7 @@ public class FlightsController(IFlightService flightService) : ControllerBase
                 detail: "El viaje no existe o no tienes permiso para agregar vuelos.");
         }
 
-        return StatusCode(StatusCodes.Status201Created, flight);
+        return CreatedAtAction(nameof(GetFlightById), new { id = flight.Id }, flight);
     }
 
     [HttpPut("api/flights/{id:guid}")]

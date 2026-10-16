@@ -16,6 +16,10 @@ public class UpdateItineraryDayDtoValidator : AbstractValidator<UpdateItineraryD
                 .NotEmpty().WithMessage("La ciudad del día es obligatoria.")                                         
                 .MaximumLength(100).WithMessage("La ciudad no puede superar los 100 caracteres.");                   
                                                                                                                      
+            RuleFor(x => x.WeatherSumm)
+                .MaximumLength(200).WithMessage("El resumen del clima no puede superar los 200 caracteres.")
+                .When(x => !string.IsNullOrWhiteSpace(x.WeatherSumm));
+
             RuleFor(x => x.TemperatureC)                                                                             
                 .InclusiveBetween(-60m, 60m)                                                                         
                 .When(x => x.TemperatureC.HasValue)                                                                  
@@ -23,5 +27,5 @@ public class UpdateItineraryDayDtoValidator : AbstractValidator<UpdateItineraryD
                                                                                                                      
             RuleFor(x => x.Notes)                                                                                    
                 .MaximumLength(2000).WithMessage("Las notas del día no pueden superar los 2000 caracteres.");        
-        }                                                                                                      
+        }
 }
