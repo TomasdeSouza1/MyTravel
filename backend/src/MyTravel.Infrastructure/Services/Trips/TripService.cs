@@ -173,22 +173,24 @@ public class TripService(ApplicationDbContext context) : ITripService
                         Notes = a.Notes                                                                                                                    
                     })]
                 })],
-                Flights = [.. trip.Flights.Select(f => new FlightResponseDto
-                {
-                    Id = f.Id,
-                    TripId = f.TripId,
-                    Airline = f.Airline,
-                    FlightNumber = f.FlightNumber,
-                    DepartureAirport = f.DepartureAirport,
-                    ArrivalAirport = f.ArrivalAirport,
-                    DepartureTime = f.DepartureTime,
-                    ArrivalTime = f.ArrivalTime,
-                    BookingReference = isOwnerOrMember ? f.BookingReference : null,
-                    Terminal = f.Terminal,
-                    Gate = f.Gate,
-                    SeatNumber = f.SeatNumber,
-                    Notes = f.Notes
-                })]
+                Flights = isOwnerOrMember
+                    ? [.. trip.Flights.Select(f => new FlightResponseDto
+                    {
+                        Id = f.Id,
+                        TripId = f.TripId,
+                        Airline = f.Airline,
+                        FlightNumber = f.FlightNumber,
+                        DepartureAirport = f.DepartureAirport,
+                        ArrivalAirport = f.ArrivalAirport,
+                        DepartureTime = f.DepartureTime,
+                        ArrivalTime = f.ArrivalTime,
+                        BookingReference = f.BookingReference,
+                        Terminal = f.Terminal,
+                        Gate = f.Gate,
+                        SeatNumber = f.SeatNumber,
+                        Notes = f.Notes
+                    })]
+                    : []
         };             
         }
 

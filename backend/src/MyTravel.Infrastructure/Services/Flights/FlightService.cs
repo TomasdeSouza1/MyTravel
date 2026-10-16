@@ -10,7 +10,7 @@ namespace MyTravel.Infrastructure.Services.Flights;
 
 public class FlightService(ApplicationDbContext context) : IFlightService
 {
-    public async Task<IEnumerable<FlightResponseDto>?> GetFlightsByTripIdAsync(Guid tripId, Guid? userId)
+    public async Task<IEnumerable<FlightResponseDto>?> GetFlightsByTripIdAsync(Guid tripId, Guid userId)
     {
         var trip = await context.Trips
             .AsNoTracking()
@@ -19,8 +19,8 @@ public class FlightService(ApplicationDbContext context) : IFlightService
 
         if (trip == null) return null;
 
-        var isOwnerOrMember = userId.HasValue && (trip.UserId == userId.Value || trip.Members.Any(m => m.UserId == userId.Value));
-        if (!trip.IsPublic && !isOwnerOrMember) return null;
+        var canView = trip.UserId == userId || trip.Members.Any(m => m.UserId == userId);
+        if (!canView) return null;
 
         var flights = await context.Flights
             .AsNoTracking()
@@ -28,10 +28,10 @@ public class FlightService(ApplicationDbContext context) : IFlightService
             .OrderBy(f => f.DepartureTime)
             .ToListAsync();
         
-        return flights.Select(f => MapToResponseDto(f, isOwnerOrMember));
+        return flights.Select(MapToResponseDto);
     }
 
-    public async Task<FlightResponseDto?> GetFlightByIdAsync(Guid flightId, Guid? userId)
+    public async Task<FlightResponseDto?> GetFlightByIdAsync(Guid flightId, Guid userId)
     {
         var flight = await context.Flights
             .AsNoTracking()
@@ -42,10 +42,10 @@ public class FlightService(ApplicationDbContext context) : IFlightService
         if (flight?.Trip == null) return null;
 
         var trip = flight.Trip;
-        var isOwnerOrMember = userId.HasValue && (trip.UserId == userId.Value || trip.Members.Any(m => m.UserId == userId.Value));
-        if (!trip.IsPublic && !isOwnerOrMember) return null;
+        var hasAccess = trip.UserId == userId || trip.Members.Any(m => m.UserId == userId);
+        if (!hasAccess) return null;
 
-        return MapToResponseDto(flight, isOwnerOrMember);
+        return MapToResponseDto(flight);
     }
 
     public async Task<FlightResponseDto?> AddFlightAsync(Guid tripId, Guid userId, CreateFlightDto dto)
@@ -127,7 +127,7 @@ public class FlightService(ApplicationDbContext context) : IFlightService
         return true;
     }
 
-    private static FlightResponseDto MapToResponseDto(Flight flight, bool includePrivateData = true) => new()
+    private static FlightResponseDto MapToResponseDto(Flight flight) => new()
     {
         Id = flight.Id,
         TripId = flight.TripId,
@@ -137,7 +137,7 @@ public class FlightService(ApplicationDbContext context) : IFlightService
         ArrivalAirport = flight.ArrivalAirport,
         DepartureTime = flight.DepartureTime,
         ArrivalTime = flight.ArrivalTime,
-        BookingReference = includePrivateData ? flight.BookingReference : null,
+        BookingReference = flight.BookingReference,
         Terminal = flight.Terminal,
         Gate = flight.Gate,
         SeatNumber = flight.SeatNumber,
