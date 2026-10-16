@@ -1,4 +1,5 @@
 using System;
+using MyTravel.Application.DTOs.Flights;
 using MyTravel.Application.DTOs.ItineraryDays; 
 
 namespace MyTravel.Application.DTOs.Trips;
@@ -22,6 +23,5 @@ public sealed record TripDetailResponseDto
     public DateTime CreatedAt { get; init; } 
 
     public List<ItineraryDayResponseDto> Days { get; init; } = [];
-
-
+    public List<FlightResponseDto> Flights { get; init; } = [];
 }

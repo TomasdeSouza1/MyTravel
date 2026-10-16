@@ -23,14 +23,27 @@ public class ActivityService(ApplicationDbContext context) : IActivityService
         var canEdit = trip.UserId == userId || trip.Members.Any(m => m.UserId == userId && (m.Role == MemberRole.Owner || m.Role == MemberRole.Editor));
         if (!canEdit) return null;
 
-        var nextOrderIndex = dto.OrderIndex;
-        if (nextOrderIndex == 0)
+        var maxIndex = await context.Activities
+            .Where(a => a.ItineraryDayId == dayId)
+            .Select(a => (int?)a.OrderIndex)
+            .MaxAsync() ?? -1;
+
+        int nextOrderIndex;
+        if (dto.OrderIndex <= 0 || dto.OrderIndex > maxIndex + 1)
         {
-            var maxIndex = await context.Activities
-                .Where(a => a.ItineraryDayId == dayId)
-                .Select(a => (int?)a.OrderIndex)
-                .MaxAsync() ?? -1;
             nextOrderIndex = maxIndex + 1;
+        }
+        else
+        {
+            nextOrderIndex = dto.OrderIndex;
+            var activitiesToShift = await context.Activities
+                .Where(a => a.ItineraryDayId == dayId && a.OrderIndex >= nextOrderIndex)
+                .ToListAsync();
+
+            foreach (var existingActivity in activitiesToShift)
+            {
+                existingActivity.OrderIndex++;
+            }
         }
 
         var activity = new Activity
@@ -56,7 +69,6 @@ public class ActivityService(ApplicationDbContext context) : IActivityService
 
     public async Task<ActivityResponseDto?> UpdateActivityAsync(Guid activityId, Guid userId, UpdateActivityDto dto)
     {
-       
         var activity = await context.Activities
             .Include(a => a.ItineraryDay)
                 .ThenInclude(d => d!.Trip)
@@ -86,7 +98,6 @@ public class ActivityService(ApplicationDbContext context) : IActivityService
 
     public async Task<bool> DeleteActivityAsync(Guid activityId, Guid userId)
     {
-        
         var activity = await context.Activities
             .Include(a => a.ItineraryDay)
                 .ThenInclude(d => d!.Trip)
@@ -100,6 +111,15 @@ public class ActivityService(ApplicationDbContext context) : IActivityService
         if (!canEdit) return false;
 
         activity.IsDeleted = true;
+
+        var linkedExpenses = await context.Expenses
+            .Where(e => e.ActivityId == activityId)
+            .ToListAsync();
+        foreach (var expense in linkedExpenses)
+        {
+            expense.ActivityId = null;
+        }
+
         await context.SaveChangesAsync();
 
         return true;
@@ -107,7 +127,6 @@ public class ActivityService(ApplicationDbContext context) : IActivityService
 
     public async Task<bool> ReorderActivitiesAsync(Guid dayId, Guid userId, ReorderActivitiesDto dto)
     {
-       
         var day = await context.ItineraryDays
             .Include(d => d.Trip)
                 .ThenInclude(t => t!.Members)
@@ -125,12 +144,12 @@ public class ActivityService(ApplicationDbContext context) : IActivityService
 
         var itemsMap = dto.Items.ToDictionary(i => i.ActivityId, i => i.NewOrderIndex);
 
+        if (dto.Items.Count != activities.Count || !activities.All(a => itemsMap.ContainsKey(a.Id)))
+            return false;
+
         foreach (var activity in activities)
         {
-            if (itemsMap.TryGetValue(activity.Id, out var newIndex))
-            {
-                activity.OrderIndex = newIndex;
-            }
+            activity.OrderIndex = itemsMap[activity.Id];
         }
 
         await context.SaveChangesAsync();

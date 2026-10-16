@@ -29,6 +29,17 @@ public class AuthService : IAuthService
             return (false, null, new[] { "El correo electrónico ya está registrado." });
         }
 
+        // Asegurar que el rol "User" exista antes de crear el usuario
+        const string defaultRole = "User";
+        if (!await _roleManager.RoleExistsAsync(defaultRole))
+        {
+            var createRoleResult = await _roleManager.CreateAsync(new IdentityRole<Guid>(defaultRole));
+            if (!createRoleResult.Succeeded && !await _roleManager.RoleExistsAsync(defaultRole))
+            {
+                return (false, null, createRoleResult.Errors.Select(e => e.Description));
+            }
+        }
+
         var user = new User
         {
             UserName = dto.Email,
@@ -43,13 +54,12 @@ public class AuthService : IAuthService
             return (false, null, result.Errors.Select(e => e.Description));
         }
 
-        // Asignar rol "User" por defecto
-        const string defaultRole = "User";
-        if (!await _roleManager.RoleExistsAsync(defaultRole))
+        var roleResult = await _userManager.AddToRoleAsync(user, defaultRole);
+        if (!roleResult.Succeeded)
         {
-            await _roleManager.CreateAsync(new IdentityRole<Guid>(defaultRole));
+            await _userManager.DeleteAsync(user);
+            return (false, null, roleResult.Errors.Select(e => e.Description));
         }
-        await _userManager.AddToRoleAsync(user, defaultRole);
 
         var roles = await _userManager.GetRolesAsync(user);
         var token = _jwtTokenService.GenerateToken(user, roles);

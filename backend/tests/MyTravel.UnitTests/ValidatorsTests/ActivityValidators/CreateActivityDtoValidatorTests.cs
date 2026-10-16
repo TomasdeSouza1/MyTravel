@@ -97,4 +97,15 @@ public class CreateActivityDtoValidatorTests
         Assert.False(result.IsValid);
         Assert.Contains(result.Errors, e => e.PropertyName == nameof(CreateActivityDto.OrderIndex));
     }
+
+    [Fact]
+    public void Validate_AddressExceeds300Chars_ShouldHaveValidationError()
+    {
+        var dto = CreateValidDto() with { Address = new string('A', 301) };
+
+        var result = _validator.Validate(dto);
+
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, e => e.PropertyName == nameof(CreateActivityDto.Address));
+    }
 }

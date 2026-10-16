@@ -11,12 +11,12 @@ namespace MyTravel.Api.Controllers;
 public class FlightsController(IFlightService flightService) : ControllerBase
 {
     [HttpGet("api/trips/{tripId:guid}/flights")]
-    [Authorize]
+    [AllowAnonymous]
     [ProducesResponseType(typeof(IEnumerable<FlightResponseDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetFlightsByTripId(Guid tripId)
     {
-        var userId = User.GetUserId();
+        var userId = User.GetOptionalUserId();
         var flights = await flightService.GetFlightsByTripIdAsync(tripId, userId);
 
         if (flights == null)
@@ -31,12 +31,12 @@ public class FlightsController(IFlightService flightService) : ControllerBase
     }
 
     [HttpGet("api/flights/{id:guid}")]
-    [Authorize]
+    [AllowAnonymous]
     [ProducesResponseType(typeof(FlightResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetFlightById(Guid id)
     {
-        var userId = User.GetUserId();
+        var userId = User.GetOptionalUserId();
         var flight = await flightService.GetFlightByIdAsync(id, userId);
 
         if (flight == null)
@@ -68,7 +68,7 @@ public class FlightsController(IFlightService flightService) : ControllerBase
                 detail: "El viaje no existe o no tienes permiso para agregar vuelos.");
         }
 
-        return StatusCode(StatusCodes.Status201Created, flight);
+        return CreatedAtAction(nameof(GetFlightById), new { id = flight.Id }, flight);
     }
 
     [HttpPut("api/flights/{id:guid}")]

@@ -91,4 +91,15 @@ public class CreateItineraryDayDtoValidatorTests
         Assert.True(result.IsValid);
         Assert.Empty(result.Errors);
     }
+
+    [Fact]
+    public void Validate_WeatherSummExceeds200Chars_ShouldHaveValidationError()
+    {
+        var dto = CreateValidDto() with { WeatherSumm = new string('A', 201) };
+
+        var result = _validator.Validate(dto);
+
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, e => e.PropertyName == nameof(CreateItineraryDayDto.WeatherSumm));
+    }
 }

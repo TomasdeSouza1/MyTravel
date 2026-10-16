@@ -22,6 +22,10 @@ public class CreateActivityDtoValidator : AbstractValidator<CreateActivityDto>
             RuleFor(x => x.Longitude)                                                                                
                 .InclusiveBetween(-180.0, 180.0).WithMessage("La longitud debe estar entre -180 y 180 grados.");     
                                                                                                                      
+            RuleFor(x => x.Address)
+                .MaximumLength(300).WithMessage("La dirección no puede superar los 300 caracteres.")
+                .When(x => !string.IsNullOrWhiteSpace(x.Address));
+
             RuleFor(x => x.EndTime)                                                                                  
                 .GreaterThanOrEqualTo(x => x.StartTime)                                                              
                 .WithMessage("La hora de fin no puede ser anterior a la hora de inicio.");                           
@@ -34,5 +38,5 @@ public class CreateActivityDtoValidator : AbstractValidator<CreateActivityDto>
                                                                                                                      
             RuleFor(x => x.Notes)                                                                                    
                 .MaximumLength(1000).WithMessage("Las notas de la actividad no pueden superar los 1000 caracteres.");
-        }                          
+        }
 }
