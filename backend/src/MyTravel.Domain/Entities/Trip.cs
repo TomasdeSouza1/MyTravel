@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 namespace MyTravel.Domain.Entities;
 
 public class Trip : BaseEntity
@@ -12,11 +13,21 @@ public class Trip : BaseEntity
     public DateOnly StartDate { get; set; } 
     public DateOnly EndDate { get; set; } 
     public decimal TotalBudget { get; set; }
-    public string InviteToken { get; set; } = Guid.NewGuid().ToString("N");
+    public string InviteToken { get; set; } = GenerateInviteToken();
     public bool IsPublic { get; set; } = false;
 
     public List<ItineraryDay> Days { get; set; } = [];
     public List<Expense> Expenses { get; set; } = [];
     public List<TripMember> Members { get; set; } = [];
     public List<Flight> Flights { get; set; } = [];
+    
+    public static string GenerateInviteToken() => RandomNumberGenerator.GetHexString(32, lowercase: true);
+
+    public string RegenerateInviteToken()
+    {
+        InviteToken = GenerateInviteToken();
+        return InviteToken;
+    }
+
+
 }
